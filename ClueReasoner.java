@@ -108,10 +108,94 @@ public class ClueReasoner
         }    
         
         // If a card is one place, it cannot be in another place.
-            
+        for(int p = 0; p <= numPlayers; p++){
+            int[] clause = new int[2];
+            for(int c = 0; c < numCards; c++){
+                for(int q = 0; q <= numPlayers; q++ ){
+                    // c1 = the card is one place;
+                    // c2 = the card is in this other place;
+                    // c1 => ~c2 
+                    // ~c1 v ~c2
+                    if(q!=p){
+                        clause[0] = -getPairNum(p,c);
+                        clause[1] = -getPairNum(q,c);
+                        solver.addClause(clause);
+                    }
+                }
+            }
+        }
+        
+          
         // At least one card of each category is in the case file.
-            
+        
+        // Add clauses for suspect category
+        int[] clause = new int[suspects.length];
+        for (int c = 0; i< suspects.length; c++){
+            clause[c] = getPairNum("cf",suspects[c]);
+        }    
+        solver.addClause(clause);
+
+        // Add clauses for weapons category
+        int[] clause = new int[weapons.length];
+        for (int c = 0; i< weapons.length; c++){
+            clause[c] = getPairNum("cf",weapons[c]);
+        }    
+        solver.addClause(clause);
+
+        int[] clause = new int[rooms.length];
+        for (int c = 0; i< rooms.length; c++){
+            clause[c] = getPairNum("cf",rooms[c]);
+        }    
+        solver.addClause(clause);
+
+
         // No two cards in each category can both be in the case file.
+        
+        // Add clauses for suspects category
+        for (String cardInFile : suspects){
+            int[] clause = new int[2];
+            for(String cardNotInFile : suspects){
+                // c1 = the card is with case file
+                // c2 = another card is with case file
+                // c1 => ~c2
+                // ~c1 v ~c2
+                if(!cardNotInFile.equals(cardInFile)){
+                    clause[0] = -getPairNum("cf",cardInFile);
+                    clause[1] = -getPairNum("cf",cardNotInFile);
+                    solver.addClause(clause);
+                }
+            }
+        }
+        // Add clauses for weapons category
+        for (String cardInFile : weapons){
+            int[] clause = new int[2];
+            for(String cardNotInFile : weapons){
+                // c1 = the card is with case file
+                // c2 = another card is with case file
+                // c1 => ~c2
+                // ~c1 v ~c2
+                if(!cardNotInFile.equals(cardInFile)){
+                    clause[0] = -getPairNum("cf",cardInFile);
+                    clause[1] = -getPairNum("cf",cardNotInFile);
+                    solver.addClause(clause);
+                }
+            }
+        }
+        // Add clauses for rooms category
+        for (String cardInFile : rooms){
+            int[] clause = new int[2];
+            for(String cardNotInFile : rooms){
+                // c1 = the card is with case file
+                // c2 = another card is with case file
+                // c1 => ~c2
+                // ~c1 v ~c2
+                if(!cardNotInFile.equals(cardInFile)){
+                    clause[0] = -getPairNum("cf",cardInFile);
+                    clause[1] = -getPairNum("cf",cardNotInFile);
+                    solver.addClause(clause);
+                }
+            }
+        }
     }
         
     public void hand(String player, String[] cards) 
@@ -119,13 +203,108 @@ public class ClueReasoner
         playerNum = getPlayerNum(player);
 
         // TO BE IMPLEMENTED AS AN EXERCISE
+        String playerCards = cards;
+        System.out.println("The cards are: " + playerCards );
+        int clause;
+        for(String card: playerCards)
+        {
+            clause = -getPairNum("cf",card);
+            solver.addClause(clause);
+            clause = getPairNum(player,card);
+            solver.addClause(clause);
+        }
+
     }
 
     public void suggest(String suggester, String card1, String card2, 
                         String card3, String refuter, String cardShown) 
     {
         // TO BE IMPLEMENTED AS AN EXERCISE
+        int suggesterIndex = java.util.Arrays.binarySearch(players, suggester);
+        int refuterIndex; 
+        if(refuter!=null){
+            refuterIndex = java.util.Arrays.binarySearch(players, refuter);
+        }
+        
+        // when no one refutes suggestion
+        if(refuter == null){
+           for(String player: players ){
+                int clause;
+                if(!player.equals(suggester)){
+                    clause = -getPairNum(player,card1);
+                    solver.addClause(clause);
+                    clause = -getPairNum(player,card2);
+                    solver.addClause(clause);
+                    clause = -getPairNum(player,card3);
+                    solver.addClause(clause);
+                } 
+           } 
+        }
+
+        // when someone refutes and shows card
+        if(cardShown != null){
+           
+           //refuter has card
+           int clause;
+           clause = getPairNum(refuter,cardShown);
+           solver.addClause(clause);
+           clause = -getPairNum("cf",cardShown);
+           solver.addClause(clause);
+           
+           
+           /* Add clauses that players in between refuter and suggester
+                do not have cards 1,2,3.
+           */
+           int i = ++suggesterIndex%numPlayers;
+
+           while(i!=refuterIndex){
+                int clause = -getPairNum(players[i],card1);
+                solver.addClause(clause);
+                clause = -getPairNum(players[i],card2);
+                solver.addClause(clause);
+                clause = -getPairNum(players[i],card3);
+                solver.addClause(clause);
+           } 
+        }
+
+        // when someone refutes and doesn't show card
+        if(cardShown = null && refuter!= null){
+            /* Add clauses that players in between refuter and suggester
+                do not have cards 1,2,3.
+            */
+            int i = ++suggesterIndex%numPlayers;
+            while(i!=refuterIndex){
+                int clause = -getPairNum(players[i],card1);
+                solver.addClause(clause);
+                clause = -getPairNum(players[i],card2);
+                solver.addClause(clause);
+                clause = -getPairNum(players[i],card3);
+                solver.addClause(clause);
+            }
+
+            // refuter has one the cards 
+            int[] clause = int[3];
+            clause[0] = getPairNum(refuter,card1);
+            clause[1] = getPairNum(refuter,card2);
+            clause[2] = getPairNum(refuter,card3);
+            solver.addClause(clause);
+
+                
+        }
+
     }
+
+    // Adrian: Added code. Just a contains() function for java arrays
+    public void contains(String[] array, String element){
+        for(String a: array){
+            if(a.equals(element)){
+                return true;
+            }
+            return false;
+        }
+    }
+
+
 
     public void accuse(String accuser, String card1, String card2, 
                        String card3, boolean isCorrect)
