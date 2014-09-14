@@ -130,20 +130,20 @@ public class ClueReasoner
         
         // Add clauses for suspect category
         int[] clause = new int[suspects.length];
-        for (int c = 0; i< suspects.length; c++){
+        for (int c = 0; c< suspects.length; c++){
             clause[c] = getPairNum("cf",suspects[c]);
         }    
         solver.addClause(clause);
 
         // Add clauses for weapons category
-        int[] clause = new int[weapons.length];
-        for (int c = 0; i< weapons.length; c++){
+        clause = new int[weapons.length];
+        for (int c = 0; c< weapons.length; c++){
             clause[c] = getPairNum("cf",weapons[c]);
         }    
         solver.addClause(clause);
 
-        int[] clause = new int[rooms.length];
-        for (int c = 0; i< rooms.length; c++){
+        clause = new int[rooms.length];
+        for (int c = 0; c< rooms.length; c++){
             clause[c] = getPairNum("cf",rooms[c]);
         }    
         solver.addClause(clause);
@@ -153,7 +153,7 @@ public class ClueReasoner
         
         // Add clauses for suspects category
         for (String cardInFile : suspects){
-            int[] clause = new int[2];
+            clause = new int[2];
             for(String cardNotInFile : suspects){
                 // c1 = the card is with case file
                 // c2 = another card is with case file
@@ -168,7 +168,7 @@ public class ClueReasoner
         }
         // Add clauses for weapons category
         for (String cardInFile : weapons){
-            int[] clause = new int[2];
+            clause = new int[2];
             for(String cardNotInFile : weapons){
                 // c1 = the card is with case file
                 // c2 = another card is with case file
@@ -183,7 +183,7 @@ public class ClueReasoner
         }
         // Add clauses for rooms category
         for (String cardInFile : rooms){
-            int[] clause = new int[2];
+            clause = new int[2];
             for(String cardNotInFile : rooms){
                 // c1 = the card is with case file
                 // c2 = another card is with case file
@@ -203,14 +203,13 @@ public class ClueReasoner
         playerNum = getPlayerNum(player);
 
         // TO BE IMPLEMENTED AS AN EXERCISE
-        String playerCards = cards;
-        System.out.println("The cards are: " + playerCards );
-        int clause;
+        String[] playerCards = cards;
+        int[] clause = new int[1];
         for(String card: playerCards)
         {
-            clause = -getPairNum("cf",card);
+            clause[0] = -getPairNum("cf",card);
             solver.addClause(clause);
-            clause = getPairNum(player,card);
+            clause[0] = getPairNum(player,card);
             solver.addClause(clause);
         }
 
@@ -220,70 +219,75 @@ public class ClueReasoner
                         String card3, String refuter, String cardShown) 
     {
         // TO BE IMPLEMENTED AS AN EXERCISE
-        int suggesterIndex = java.util.Arrays.binarySearch(players, suggester);
-        int refuterIndex; 
+
+        int suggesterIndex = getPlayerNum(suggester);
+        int refuterIndex = 0;
         if(refuter!=null){
-            refuterIndex = java.util.Arrays.binarySearch(players, refuter);
+            refuterIndex = getPlayerNum(refuter);
         }
         
         // when no one refutes suggestion
         if(refuter == null){
            for(String player: players ){
-                int clause;
+                int[] clause = new int[1];
                 if(!player.equals(suggester)){
-                    clause = -getPairNum(player,card1);
+                    clause[0] = -getPairNum(player,card1);
                     solver.addClause(clause);
-                    clause = -getPairNum(player,card2);
+                    clause[0] = -getPairNum(player,card2);
                     solver.addClause(clause);
-                    clause = -getPairNum(player,card3);
+                    clause[0] = -getPairNum(player,card3);
                     solver.addClause(clause);
                 } 
-           } 
+            } 
         }
 
         // when someone refutes and shows card
         if(cardShown != null){
            
            //refuter has card
-           int clause;
-           clause = getPairNum(refuter,cardShown);
+           int[] clause = new int[1];
+           clause[0] = getPairNum(refuter,cardShown);
            solver.addClause(clause);
-           clause = -getPairNum("cf",cardShown);
+           clause[0] = -getPairNum("cf",cardShown);
            solver.addClause(clause);
            
            
-           /* Add clauses that players in between refuter and suggester
-                do not have cards 1,2,3.
-           */
-           int i = ++suggesterIndex%numPlayers;
-
-           while(i!=refuterIndex){
-                int clause = -getPairNum(players[i],card1);
-                solver.addClause(clause);
-                clause = -getPairNum(players[i],card2);
-                solver.addClause(clause);
-                clause = -getPairNum(players[i],card3);
-                solver.addClause(clause);
-           } 
-        }
-
-        // when someone refutes and doesn't show card
-        if(cardShown = null && refuter!= null){
             /* Add clauses that players in between refuter and suggester
                 do not have cards 1,2,3.
             */
             int i = ++suggesterIndex%numPlayers;
+           while(i!=refuterIndex){
+                clause[0] = -getPairNum(players[i],card1);
+                solver.addClause(clause);
+                clause[0] = -getPairNum(players[i],card2);
+                solver.addClause(clause);
+                clause[0] = -getPairNum(players[i],card3);
+                solver.addClause(clause);
+                i = ++i%numPlayers;
+                
+           } 
+        }
+
+        // when someone refutes and doesn't show card
+        if(cardShown == null && refuter!= null){
+            /* Add clauses that players in between refuter and suggester
+                do not have cards 1,2,3.
+            */
+            int i = ++suggesterIndex%numPlayers;
+            int[] clause = new int[1];
+
             while(i!=refuterIndex){
-                int clause = -getPairNum(players[i],card1);
+                clause[0] = -getPairNum(players[i],card1);
                 solver.addClause(clause);
-                clause = -getPairNum(players[i],card2);
+                clause[0] = -getPairNum(players[i],card2);
                 solver.addClause(clause);
-                clause = -getPairNum(players[i],card3);
+                clause[0] = -getPairNum(players[i],card3);
                 solver.addClause(clause);
+                i = ++i%numPlayers;
             }
 
             // refuter has one the cards 
-            int[] clause = int[3];
+            clause = new int[3];
             clause[0] = getPairNum(refuter,card1);
             clause[1] = getPairNum(refuter,card2);
             clause[2] = getPairNum(refuter,card3);
@@ -295,13 +299,13 @@ public class ClueReasoner
     }
 
     // Adrian: Added code. Just a contains() function for java arrays
-    public void contains(String[] array, String element){
+    public boolean contains(String[] array, String element){
         for(String a: array){
             if(a.equals(element)){
                 return true;
             }
-            return false;
         }
+        return false;
     }
 
 
@@ -310,6 +314,24 @@ public class ClueReasoner
                        String card3, boolean isCorrect)
     {
         // TO BE IMPLEMENTED AS AN EXERCISE
+        if(isCorrect){
+            int[] clause = new int[1];
+            clause[0] = getPairNum("cf",card1);
+            solver.addClause(clause);
+            clause[0] = getPairNum("cf",card2);
+            solver.addClause(clause);
+            clause[0] = getPairNum("cf",card3);
+            solver.addClause(clause);
+        }
+        else{
+            int[] clause = new int[1];
+            clause[0] = -getPairNum("cf",card1);
+            solver.addClause(clause);
+            clause[0] = -getPairNum("cf",card2);
+            solver.addClause(clause);
+            clause[0] = -getPairNum("cf",card3);
+            solver.addClause(clause);
+        }
     }
 
     public int query(String player, String card) 

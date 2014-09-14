@@ -73,7 +73,7 @@ public class SATSolver
                 out.println("0");
             }
             out.close();
-            Process process = Runtime.getRuntime().exec("zchaff query.cnf");
+            Process process = Runtime.getRuntime().exec("zchaff64/zchaff query.cnf");
             Scanner sc = new Scanner(process.getInputStream());
             sc.findWithinHorizon("RESULT:", 0);
             String result = sc.next();
