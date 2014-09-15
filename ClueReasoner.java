@@ -298,18 +298,6 @@ public class ClueReasoner
 
     }
 
-    // Adrian: Added code. Just a contains() function for java arrays
-    public boolean contains(String[] array, String element){
-        for(String a: array){
-            if(a.equals(element)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-
     public void accuse(String accuser, String card1, String card2, 
                        String card3, boolean isCorrect)
     {
