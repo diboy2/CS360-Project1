@@ -108,6 +108,7 @@ public class SATSolver
     public static void main(String[] args) 
     {
         // Liar and truth-teller example test code:
+        /*
         int[][] clauses = {{-1, -2}, {2, 1}, {-2, -3}, {3, 2}, {-3, -1}, {-3, -2}, {1, 2, 3}};
         SATSolver s = new SATSolver();
         for (int i = 0; i < clauses.length; i++)
@@ -121,5 +122,66 @@ public class SATSolver
             System.out.println("Yes.");
         else
             System.out.println("Unknown."); 
+        */
+
+        // Testing Section 7, Problem 2
+
+        int[][] clauses = {{-1, 3}, {-2, -3}, {3, 2}, {-3, 2,-1}, {-2, 3}, {1,3}}; 
+        SATSolver s = new SATSolver();
+        for (int i = 0; i < clauses.length; i++)
+            s.addClause(clauses[i]);
+        System.out.println("Knowledge base is satisfiable: " + s.makeQuery());
+        System.out.print("Is Amy a liar? ");
+        int result = s.testLiteral(-1);
+        if (result == FALSE)
+            System.out.println("No.");
+        else if (result == TRUE)
+            System.out.println("Yes.");
+        else
+            System.out.println("Unknown."); 
+
+        System.out.print("Is Bob a liar? ");
+        result = s.testLiteral(-2);
+        if (result == FALSE)
+            System.out.println("No.");
+        else if (result == TRUE)
+            System.out.println("Yes.");
+        else
+            System.out.println("Unknown."); 
+        System.out.print("Is Cal a truthteller? ");
+        result = s.testLiteral(3);
+        if (result == FALSE)
+            System.out.println("No.");
+        else if (result == TRUE)
+            System.out.println("Yes.");
+        else
+            System.out.println("Unknown."); 
+
+        System.out.print("Is Amy a truth-teller? ");
+        result = s.testLiteral(1);
+        if (result == FALSE)
+            System.out.println("No.");
+        else if (result == TRUE)
+            System.out.println("Yes.");
+        else
+            System.out.println("Unknown."); 
+
+        System.out.print("Is Bob a truth-teller? ");
+        result = s.testLiteral(2);
+        if (result == FALSE)
+            System.out.println("No.");
+        else if (result == TRUE)
+            System.out.println("Yes.");
+        else
+            System.out.println("Unknown."); 
+        System.out.print("Is Cal a liar? ");
+        result = s.testLiteral(-3);
+        if (result == FALSE)
+            System.out.println("No.");
+        else if (result == TRUE)
+            System.out.println("Yes.");
+        else
+            System.out.println("Unknown."); 
+
     }
 }
